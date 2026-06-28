@@ -1,15 +1,19 @@
 
 import { client } from '../sanity/lib/client'
+import { urlFor } from '../sanity/lib/image'
+import ScrollToTopButton from './ScrollToTopButton'
 import SubscribeButton from './SubscribeButton'
 
 async function getData() {
   const services = await client.fetch(`*[_type == "service"]`)
   const stats = await client.fetch(`*[_type == "stat"]`)
-  return { services, stats }
+  const reviews = await client.fetch(`*[_type == "review"]`)
+  const aiServices = await client.fetch(`*[_type == "aiservice"]`)
+  return { services, stats, reviews, aiServices }
 }
 
 export default async function Home() {
-  const { services, stats } = await getData()
+  const { services, stats, reviews, aiServices } = await getData()
   
 
   return (
@@ -20,6 +24,7 @@ export default async function Home() {
         <div className="flex gap-6">
           <a href="#services" className="hover:text-blue-300">Services</a>
           <a href="#ai" className="hover:text-blue-300">AI</a>
+          <a href="#reviews" className="hover:text-blue-300">Reviews</a>
           <a href="#contact" className="hover:text-blue-300">Contact</a>
         </div>
       </nav>
@@ -34,7 +39,7 @@ export default async function Home() {
       </section>
 
       {/* STATS */}
-      <section className="bg-blue-900 text-white py-10 px-8">
+      <section className="bg-[#091c47] text-white py-10 px-8">
         <div className="flex justify-center gap-16 flex-wrap">
           {stats.map((stat) => (
             <div key={stat._id} className="text-center">
@@ -46,7 +51,7 @@ export default async function Home() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="py-16 px-8 bg-white">
+      <section id="services" className="py-16 px-8 bg-[#F5F4EB]">
         <h2 className="text-3xl font-bold text-center text-[#091c47] mb-12">
           Revenue Cycle Solutions
         </h2>
@@ -61,29 +66,41 @@ export default async function Home() {
       </section>
 
       {/* AI SERVICES */}
-      <section id="ai" className="py-16 px-8 bg-gray-50">
+      <section id="ai" className="py-16 px-8 bg-[#F5F4EB] ">
         <h2 className="text-3xl font-bold text-center text-[#091c47] mb-4">
           AI Services
         </h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
           Intelligent systems that streamline coding, billing, and eligibility — driving faster payments and fewer write-offs.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <div className="bg-white rounded-xl p-8 border border-gray-200 hover:shadow-lg transition">
-            <div className="text-4xl mb-4">🤖</div>
-            <h3 className="text-lg font-bold text-[#091c47] mb-3">AI Powered Coding & Claim Submission</h3>
-            <p className="text-gray-600 text-sm">Automate clinical documentation analysis for 95%+ coding accuracy, reducing errors and speeding up submissions.</p>
-          </div>
-          <div className="bg-white rounded-xl p-8 border border-gray-200 hover:shadow-lg transition">
-            <div className="text-4xl mb-4">⚡</div>
-            <h3 className="text-lg font-bold text-[#091c47] mb-3">Prior Authorization Automation</h3>
-            <p className="text-gray-600 text-sm">Streamline workflows with intelligent tools that handle submissions, tracking, and approvals, minimizing delays.</p>
-          </div>
-          <div className="bg-white rounded-xl p-8 border border-gray-200 hover:shadow-lg transition">
-            <div className="text-4xl mb-4">🛡️</div>
-            <h3 className="text-lg font-bold text-[#091c47] mb-3">Proactive Denial Management</h3>
-            <p className="text-gray-600 text-sm">Use predictive AI to scrub claims, verify eligibility in real-time, and resolve up to 75% of routine denials autonomously.</p>
-          </div>
+        <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
+          {aiServices.map((aiservice) => (
+            <div key={aiservice._id} className="w-full md:w-1/2 lg:w-1/4 border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition">
+              <h3 className="text-lg font-bold text-[#091c47] mb-3">{aiservice.title}</h3>
+              <p className="text-gray-600 text-sm">{aiservice.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+      {/* REVIEW */}
+      <section id="reviews" className="py-16 px-8 bg-[#F5F4EB]">
+        <h2 className="text-3xl font-bold text-center text-[#091c47] mb-12">
+          Customer Reviews
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {reviews.map((review) => (
+            <div key={review._id} className="border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition">
+              <img
+                src={urlFor(review.image).width(100).height(100).url()}
+                alt={review.title}
+                className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-blue-200"
+              />
+              <h3 className="text-lg font-bold text-[#091c47] mb-3">{review.title}</h3>
+              <p className="text-gray-600 text-sm">{review.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -97,11 +114,12 @@ export default async function Home() {
         <SubscribeButton />
       </section>
 
-
       {/* FOOTER */}
       <footer id="contact" className="bg-[#091c47] text-white text-center py-8">
         <p>© 2025 RCM Services. All rights reserved.</p>
       </footer>
+
+      <ScrollToTopButton />
     </main>
   )
 }
